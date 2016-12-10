@@ -1,0 +1,48 @@
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+
+...
+
+
+			<h3>Current weather for snails is...</h3>
+				<div ng-app="myApp" ng-controller="myCtrl">
+					City: {{weather.location}}
+					<br>
+					<weather-icon cloudiness="{{ weather.clouds }}"></weather-icon>
+					Current: {{ weather.temp.current}}<br>
+					min: {{ weather.temp.min }}, max: {{ weather.temp.max }}
+				</div><!-- ng-app="myApp" -->
+
+				<script>
+				var app = angular.module('myApp', []);
+				app.factory('weatherService', function($http) {
+					return {
+						getWeather: function() {
+							var weather = { temp: {}, clouds: null };
+							var APIKEY = 'db8295a29d855b36c8db4e7e4c80b95e';
+							var LOCATION = 'san francisco,CA';
+							var LOCATION = 'mabalacat,PH';
+							var url = 'http://api.openweathermap.org/data/2.5/weather?q=' + LOCATION + '&units=metric&callback=JSON_CALLBACK&apikey='+APIKEY;
+							console.log('url is ' + url)
+							$http.jsonp(url).success(function(data) {
+
+								console.log('data is ', data);
+								if (data) {
+									if (data.main) {
+										weather.temp.current = data.main.temp;
+										weather.temp.min = data.main.temp_min;
+										weather.temp.max = data.main.temp_max;
+									}
+									weather.clouds = data.clouds ? data.clouds.all : undefined;
+									weather.location = data.name;
+								}
+							});
+							return weather;
+						}
+					};
+				});
+
+				// Put the weather on the page
+				app.controller('myCtrl', function($scope, weatherService) {
+					$scope.weather = weatherService.getWeather();
+				});
+				</script>
